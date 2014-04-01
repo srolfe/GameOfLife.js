@@ -173,6 +173,28 @@ function doBinds(){
 		last.x=x;last.y=y;
 	    makeBox(x,y);
 	}
+	
+	document.getElementById('grid').ontouchmove=function(){
+		event.preventDefault();
+		
+		for (var i in event.targetTouches){
+			if (interval!=false){ paused=true; stopGame(); } // Pause the game while adding cells
+			
+			var touch=event.targetTouches[i];
+			
+			// Get X,Y
+		    var x=touch.pageX-field.offsetLeft,y=touch.pageY-field.offsetTop;
+
+		    // Increments of 10... Round down to a ten
+		    x=(x-(x%zoom))/zoom;y=(y-(y%zoom))/zoom;
+		
+			// Record last, so we're not duplicating events
+			if (last.x!=x || last.y!=y){
+				last={x:x,y:y}
+				makeBox(x,y);
+			}
+		}
+	};
 
 	document.onmouseup=function(){
 		isDragging=false; // Dragging
