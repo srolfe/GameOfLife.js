@@ -55,6 +55,40 @@ function shareState(){
 function loadSharedState(share){
 	var record=JSON.parse((atob(share)).replace(/(\d+)/g,'"$1"'));
 	
+	// Calculate min/max, see if it can fit on screen
+	var minY=9999, maxY=0, minX=9999, maxX=0;
+	for (var y in record){
+		minY=y<minY?y:minY; maxY=y>maxY?y:maxY;
+		for (var val in record[y]){
+			var x=record[y][val];
+			maxX=x>maxX?x:maxX; minX=x<minX?x:minX;
+		}
+	}
+	
+	if (maxY>max.y){
+		// Subtract from all...
+		var newRecord={}
+		var sub=(maxY-max.y)+1;
+		for (var y in record){
+			newRecord[parseInt(y)-parseInt(sub)]=record[y];
+		}
+		record=JSON.parse(JSON.stringify(newRecord));
+	}
+	
+	if (maxX>max.x){
+		// Subtract from all...
+		var newRecord={}
+		var sub=(maxX-max.x)+1;
+		for (var y in record){
+			newRecord[y]=[];
+			for (var val in record[y]){
+				var x=record[y][val];
+				newRecord[y].push(parseInt(x)-parseInt(sub));
+			}
+		}
+		record=JSON.parse(JSON.stringify(newRecord));
+	}
+	
 	for (var y in record){
 		if (cells[y]!=undefined){
 			for (var val in record[y]){
@@ -65,11 +99,10 @@ function loadSharedState(share){
 	}
 	
 	centerCells();
-	
-	initialState=JSON.parse(JSON.stringify(cells));
 }
 
 function centerCells(){
+	console.log("MM: "+max.x+","+max.y);
 	// Center pattern
 	var minY=9999, maxY=0, minX=9999, maxX=0;
 	for (var y in cells){
@@ -91,18 +124,22 @@ function centerCells(){
 	
 	console.log(adjust_x+","+adjust_y);
 	
-	var newState=JSON.parse(JSON.stringify(cells));
+	var newState=[];
+	for (var y=0;y<=max.y;y++){
+		newState[y]=[];
+		for (var x=0;x<=max.x;x++){
+			newState[y][x]=0;
+		}
+	}
+	
 	for (var y in cells){
 		for (var x in cells[y]){
 			if (cells[y][x]==1){
-				newState[y][x]=0;
 				var newX=parseInt(x)+parseInt(adjust_x), newY=parseInt(y)+parseInt(adjust_y);
 				if (cells[newY]!=undefined && cells[newY][newX]!=undefined) newState[newY][newX]=1;
 			}
 		}
 	}
-	
-	console.log("done");
 	
 	cells=JSON.parse(JSON.stringify(newState));
 	initialState=JSON.parse(JSON.stringify(cells));
@@ -281,6 +318,7 @@ function zoomField(factor){
 	drawGrid();
 	doBinds();
 	
+	// Add new cells in
 	for (var y=0;y<=max.y;y++){
 		if (cells[y]==undefined) cells[y]=[];
 		for (var x=0;x<=max.x;x++){
@@ -290,8 +328,7 @@ function zoomField(factor){
 	
 	centerCells();
 	
-	// Clear all cells > zoom... Add cells if needed
-	// One at a time... First, kill all unneeded cells
+	// Delete larger cells
 	for (var y in cells){
 		for (var x in cells){
 			if (x>max.x) delete cells[y][x];
