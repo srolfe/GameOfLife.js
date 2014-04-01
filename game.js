@@ -64,7 +64,50 @@ function loadSharedState(share){
 		}
 	}
 	
+	centerCells();
+	
 	initialState=JSON.parse(JSON.stringify(cells));
+}
+
+function centerCells(){
+	// Center pattern
+	var minY=9999, maxY=0, minX=9999, maxX=0;
+	for (var y in cells){
+		for (var x in cells[y]){
+			if (cells[y][x]==1){
+				maxY=y>maxY?y:maxY; maxX=x>maxX?x:maxX;
+				minY=y<minY?y:minY; minX=x<minX?x:minX;
+			}
+		}
+	}
+	
+	// We've got min's and maxes... Find width/height of pattern
+	var width=maxX-minX, height=maxY-minY;
+	var center_y=max.y/2, center_x=max.x/2;
+	
+	// Adjust pattern to fit at center - subtract width from center, figure out manipulation from minX
+	var adjust_x=center_x-(width/2); adjust_x=Math.floor(adjust_x-minX);
+	var adjust_y=center_y-(height/2); adjust_y=Math.floor(adjust_y-minY);
+	
+	console.log(adjust_x+","+adjust_y);
+	
+	var newState=JSON.parse(JSON.stringify(cells));
+	for (var y in cells){
+		for (var x in cells[y]){
+			if (cells[y][x]==1){
+				newState[y][x]=0;
+				var newX=parseInt(x)+parseInt(adjust_x), newY=parseInt(y)+parseInt(adjust_y);
+				if (cells[newY]!=undefined && cells[newY][newX]!=undefined) newState[newY][newX]=1;
+			}
+		}
+	}
+	
+	console.log("done");
+	
+	cells=JSON.parse(JSON.stringify(newState));
+	initialState=JSON.parse(JSON.stringify(cells));
+	
+	drawBoard();
 }
 
 // Count all 8 neighbors
@@ -238,6 +281,15 @@ function zoomField(factor){
 	drawGrid();
 	doBinds();
 	
+	for (var y=0;y<=max.y;y++){
+		if (cells[y]==undefined) cells[y]=[];
+		for (var x=0;x<=max.x;x++){
+			if (cells[y][x]==undefined) cells[y][x]=0;
+		}
+	}
+	
+	centerCells();
+	
 	// Clear all cells > zoom... Add cells if needed
 	// One at a time... First, kill all unneeded cells
 	for (var y in cells){
@@ -246,13 +298,6 @@ function zoomField(factor){
 		}
 		
 		if (y>max.y) delete cells[y];
-	}
-	
-	for (var y=0;y<=max.y;y++){
-		if (cells[y]==undefined) cells[y]=[];
-		for (var x=0;x<=max.x;x++){
-			if (cells[y][x]==undefined) cells[y][x]=0;
-		}
 	}
 	
 	// Draw board
