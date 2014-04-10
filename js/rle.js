@@ -56,7 +56,6 @@ var RLE=function(){
 	}
 	
 	this.stateToMultiDim=function(state){
-		// Move everything to 0,0
 		var multiDim=[];
 		
 		// First mins/maxes
@@ -81,7 +80,7 @@ var RLE=function(){
 		
 		var adjX=0-minX, adjY=0-minY;
 		
-		// Iterate through state, record to multiDim
+		// Iterate through state, record to multiDim at 0,0
 		for (var oY in state){
 			var y=parseInt(oY)+adjY;
 			for (var oX in state[oY]){

@@ -6,7 +6,7 @@ var GameOfLife=function(cellState){
 	
 	// Setup our objects - cells, game, board
 	var rle=new RLE();
-	var cells=(cellState!=undefined)?new Cells(rle.multiDimToState(rle.decode(atob(cellState)))):new Cells();
+	var cells=(cellState!=undefined)?new Cells(rle.multiDimToState(rle.decode((cellState)))):new Cells();
 	var game=new Game(cells);
 	var board=new Board(0, 0, Math.floor(((self.innerWidth-(self.innerWidth%zoom))-50)/zoom), Math.floor(((self.innerHeight-(self.innerHeight%zoom))-100)/zoom),zoom);
 	
@@ -177,6 +177,6 @@ var GameOfLife=function(cellState){
 	function share(){
 		var rleStr=rle.encode(rle.stateToMultiDim(cells.state));
 		
-		window.location="?q="+btoa(rleStr);
+		window.location="?q="+(rleStr);
 	}
 }
