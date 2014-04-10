@@ -200,9 +200,7 @@ var Board=function(x,y,width,height,zoom){
 		},
 		
 		cellHistory:function(x,y,g,maxG){
-			//console.log(g);
-			//console.log(1-(0.01*g));
-			context.fillStyle="rgba(200,200,200,"+((1.00/maxG)*g)+")";
+			context.fillStyle="hsla("+((255/maxG)*(maxG-g))+",100%,50%,"+((0.75/maxG)*g)+")";
 			context.fillRect(x*zoom,y*zoom,zoom,zoom);
 			context.fill();
 		}
